@@ -1,0 +1,42 @@
+name: Deploy 4015 Hits to Yandex Cloud
+
+# Триггер: запускать при каждом push в ветку main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Забираем код из репозитория
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Магия SSH: заходим на сервер в Яндексе
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # Переходим в папку проекта (создаем, если нет)
+            mkdir -p ~/my_app
+            cd ~/my_app
+
+            # Создаем файл .env из нашего секрета прямо на сервере
+            echo "${{ secrets.ENV_FILE }}" > .env
+
+            # Копируем проект (в реальности тут лучше использовать git pull, но для начала сойдет и так)
+            # Мы просто склонируем репо заново или обновим его
+            if [ -d ".git" ]; then
+              git pull origin main
+            else
+              git clone git@github.com:${{ github.repository }}.git .
+            fi
+
+            # Запускаем наш оркестр!
+            docker compose up -d --build
