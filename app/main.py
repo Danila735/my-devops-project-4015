@@ -34,7 +34,7 @@ def hello():
     db_version = cur.fetchone()
     cur.close()
     conn.close()
-    return f"Привет! Я работаю из контейнера. Это визит №{count}.  База говорит: {db_version}"
+    return f"Привет! Я работаю из Облака Яндекса через GitHub Actions! Это визит №{count}.  База говорит: {db_version}"
 
 if __name__ == '__main__':
     init_db()
