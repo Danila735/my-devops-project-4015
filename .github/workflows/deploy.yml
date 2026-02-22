@@ -23,20 +23,25 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # Переходим в папку проекта (создаем, если нет)
+            # 1. Убедимся, что Git на месте
+            sudo apt-get update && sudo apt-get install -y git
+
+            # 2. Идем в рабочую папку
             mkdir -p ~/my_app
             cd ~/my_app
 
-            # Создаем файл .env из нашего секрета прямо на сервере
-            echo "${{ secrets.ENV_FILE }}" > .env
-
-            # Копируем проект (в реальности тут лучше использовать git pull, но для начала сойдет и так)
-            # Мы просто склонируем репо заново или обновим его
+            # 3. Умное обновление кода
             if [ -d ".git" ]; then
+              # Если репо уже есть — просто затягиваем новое
               git pull origin main
             else
+              # Если пусто — чистим скрытый мусор и клонируем с нуля по SSH
+              rm -rf *
               git clone git@github.com:${{ github.repository }}.git .
             fi
 
-            # Запускаем наш оркестр!
+            # 4. Обновляем конфиг из секретов Гитхаба
+            echo "${{ secrets.ENV_FILE }}" > .env
+
+            # 5. Магия Docker: пересобираем только то, что изменилось
             docker compose up -d --build
