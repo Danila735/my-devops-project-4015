@@ -30,7 +30,7 @@ jobs:
           # Обрати внимание на путь: cr.yandex/ID_РЕЕСТРА/имя:тег
           tags: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/my-app:latest
 
-deploy:
+  deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
@@ -45,7 +45,7 @@ deploy:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           source: "docker-compose.yml"
-          target: "my_app" # Файл ляжет в ~/my_app/docker-compose.yml
+          target: "/home/ubuntu/my_app" # Файл ляжет в ~/my_app/docker-compose.yml
 
       # 3. Заходим по SSH и даем команду на старт
       - name: Deploy via SSH
