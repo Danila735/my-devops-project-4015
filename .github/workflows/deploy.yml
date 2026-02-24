@@ -30,10 +30,24 @@ jobs:
           # Обрати внимание на путь: cr.yandex/ID_РЕЕСТРА/имя:тег
           tags: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/my-app:latest
 
-  deploy:
+deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      # 1. Забираем код в Гитхаб (чтобы было что копировать)
+      - uses: actions/checkout@v3
+
+      # 2. Копируем файл docker-compose.yml прямо на сервер
+      - name: Copy docker-compose via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          source: "docker-compose.yml"
+          target: "my_app" # Файл ляжет в ~/my_app/docker-compose.yml
+
+      # 3. Заходим по SSH и даем команду на старт
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -41,23 +55,15 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            mkdir -p ~/my_app
             cd ~/my_app
-
-            # 1. Скачиваем конфиг (используем переменную окружения REPO)
-            REPO="${{ github.repository }}"
-            curl -sSL "https://raw.githubusercontent.com{REPO}/main/docker-compose.yml" -o docker-compose.yml
             
-            # Проверка: если файл пустой - упасть
-            [ -s docker-compose.yml ] || { echo "Файл пуст!"; exit 1; }
-
-            # 2. Секреты
+            # Обновляем .env и ID реестра
             echo "${{ secrets.ENV_FILE }}" > .env
             echo "YC_REGISTRY_ID=${{ secrets.YC_REGISTRY_ID }}" >> .env
 
-            # 3. Логин в Яндекс (уже работает!)
+            # Логинимся в реестр на сервере (паспорт)
             echo '${{ secrets.YC_SA_JSON_KEY }}' | docker login --username json_key --password-stdin cr.yandex
 
-            # 4. Финал
+            # Стягиваем готовый образ и запускаем
             docker compose pull
             docker compose up -d
