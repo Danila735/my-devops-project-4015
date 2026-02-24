@@ -41,21 +41,20 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
+            # 1. Заходим в папку
             mkdir -p ~/my_app
             cd ~/my_app
+
+            # 2. Скачиваем конфиг (СЛЭШ ПОСЛЕ .com ДОБАВЛЕН!)
+            curl -sSL https://raw.githubusercontent.com{{ github.repository }}/main/docker-compose.yml -o docker-compose.yml
             
-            # Нам больше не нужен весь код! Только docker-compose.yml
-            # Мы просто скачиваем его из репозитория
-            curl -s https://raw.githubusercontent.com{{ github.repository }}/main/docker-compose.yml -o docker-compose.yml
-            
-            # Подставляем секреты и ID реестра в конфиг
+            # 3. Секреты (ID реестра и .env)
             echo "${{ secrets.ENV_FILE }}" > .env
             echo "YC_REGISTRY_ID=${{ secrets.YC_REGISTRY_ID }}" >> .env
 
-            # Логинимся в реестр прямо на сервере (чтобы он мог скачать образ)
-            # Мы используем тот же JSON-ключ, что и для пуша
+            # 4. Логин в Яндекс на СЕРВЕРЕ (ОБЯЗАТЕЛЬНО!)
             echo '${{ secrets.YC_SA_JSON_KEY }}' | docker login --username json_key --password-stdin cr.yandex
 
-            # Магия: скачиваем готовый образ и запускаем
+            # 5. Магия: скачиваем готовый образ и запускаем
             docker compose pull
-            docker compose up -d --build
+            docker compose up -d
