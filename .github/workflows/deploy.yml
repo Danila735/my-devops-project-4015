@@ -44,7 +44,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
-          source: "docker-compose.yml"
+          source: "docker-compose.yml,nginx/nginx.conf"
           target: "/home/ubuntu/my_app" # Файл ляжет в ~/my_app/docker-compose.yml
 
       # 3. Заходим по SSH и даем команду на старт
