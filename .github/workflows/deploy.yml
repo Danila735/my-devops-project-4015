@@ -8,15 +8,32 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Забираем код из репозитория
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      # 2. Магия SSH: заходим на сервер в Яндексе
+      # 1. Логинимся в Яндекс.Реестр
+      - name: Login to Yandex Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: cr.yandex
+          username: json_key
+          password: ${{ secrets.YC_SA_JSON_KEY }}
+
+      # 2. Собираем и пушим образ нашего приложения
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./app
+          push: true
+          # Обрати внимание на путь: cr.yandex/ID_РЕЕСТРА/имя:тег
+          tags: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/my-app:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -24,22 +41,17 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # 1. Идем в папку проекта (создаем, если нет)
             mkdir -p ~/my_app
             cd ~/my_app
-
-            # 2. Если папка пустая (нет .git) — клонируем. 
-            # Если не пустая, но не репозиторий — чистим и клонируем.
-            if [ ! -d ".git" ]; then
-              rm -rf * .env  # Чистим ВСЁ, чтобы git не ругался
-              git clone git@github.com:${{ github.repository }}.git .
-            else
-              # Если репо уже есть — просто подтягиваем свежий код
-              git pull origin main
-            fi
-
-            # 3. ТОЛЬКО ТЕПЕРЬ создаем .env из секрета (когда код уже скачан)
+            
+            # Нам больше не нужен весь код! Только docker-compose.yml
+            # Мы просто скачиваем его из репозитория
+            curl -s https://raw.githubusercontent.com{{ github.repository }}/main/docker-compose.yml -o docker-compose.yml
+            
+            # Подставляем секреты и ID реестра в конфиг
             echo "${{ secrets.ENV_FILE }}" > .env
-
-            # 4. Запуск оркестра
+            echo "YC_REGISTRY_ID=${{ secrets.YC_REGISTRY_ID }}" >> .env
+            
+            # Магия: скачиваем готовый образ и запускаем
+            docker compose pull
             docker compose up -d --build
