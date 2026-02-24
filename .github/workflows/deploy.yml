@@ -51,7 +51,11 @@ jobs:
             # Подставляем секреты и ID реестра в конфиг
             echo "${{ secrets.ENV_FILE }}" > .env
             echo "YC_REGISTRY_ID=${{ secrets.YC_REGISTRY_ID }}" >> .env
-            
+
+            # Логинимся в реестр прямо на сервере (чтобы он мог скачать образ)
+            # Мы используем тот же JSON-ключ, что и для пуша
+            echo '${{ secrets.YC_SA_JSON_KEY }}' | docker login --username json_key --password-stdin cr.yandex
+
             # Магия: скачиваем готовый образ и запускаем
             docker compose pull
             docker compose up -d --build
