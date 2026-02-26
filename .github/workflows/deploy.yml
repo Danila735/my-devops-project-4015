@@ -8,7 +8,28 @@ on:
   workflow_dispatch:
 
 jobs:
+
+ test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install flask psycopg2-binary
+          
+      - name: Run Syntax Check
+        run: |
+          # Это наш простенький тест: если в коде опечатка, он упадет
+          python3 -m py_compile app/main.py
+
   build-and-push:
+    needs: test # Запускать только если тесты прошли!
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
