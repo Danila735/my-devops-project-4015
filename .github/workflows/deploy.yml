@@ -88,3 +88,16 @@ jobs:
             # Стягиваем готовый образ и запускаем
             docker compose pull
             docker compose up -d
+
+            # 5. Ждем 10 секунд, чтобы база и питон успели "проснуться"
+            sleep 10
+            
+            # 6. SMOKE TEST: Бьем по localhost внутри сервера
+            echo "Запускаю Smoke Test..."
+            if curl -s localhost | grep -q "визит"; then
+              echo "ТЕСТ ПРОЙДЕН: Приложение ответило правильно!"
+            else
+              echo "ТЕСТ ПРОВАЛЕН: Приложение не отдает визиты!"
+              docker compose logs # Посмотрим, что пошло не так
+              exit 1
+            fi
