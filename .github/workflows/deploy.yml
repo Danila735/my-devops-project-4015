@@ -6,6 +6,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Какую версию деплоим?'
+        required: true
+        default: 'latest'
 
 jobs:
 
@@ -85,7 +90,12 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ~/my_app
-            
+
+            SELECTED_VERSION="${{ github.event.inputs.version }}"
+            APP_TAG=${SELECTED_VERSION:-latest}
+
+            echo "Деплоим версию: $APP_TAG"
+
             # Обновляем .env и ID реестра
             echo "${{ secrets.ENV_FILE }}" > .env
             echo "YC_REGISTRY_ID=${{ secrets.YC_REGISTRY_ID }}" >> .env

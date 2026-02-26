@@ -26,7 +26,7 @@ services:
   # Наше Python-приложение
   app:
   #  build: ./app
-    image: cr.yandex/${YC_REGISTRY_ID}/my-app:latest
+    image: cr.yandex/${YC_REGISTRY_ID}/my-app:${APP_TAG:-latest}
     restart: always
     deploy:
       replicas: 3
