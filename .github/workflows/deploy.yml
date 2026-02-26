@@ -101,3 +101,4 @@ jobs:
               docker compose logs # Посмотрим, что пошло не так
               exit 1
             fi
+            docker image prune -f
