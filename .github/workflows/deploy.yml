@@ -94,7 +94,7 @@ jobs:
             
             # 6. SMOKE TEST: Бьем по localhost внутри сервера
             echo "Запускаю Smoke Test..."
-            if curl -s localhost | grep -q "визит"; then
+            if curl -s localhost | grep -q "Визит"; then
               echo "ТЕСТ ПРОЙДЕН: Приложение ответило правильно!"
             else
               echo "ТЕСТ ПРОВАЛЕН: Приложение не отдает визиты!"
