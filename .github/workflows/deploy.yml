@@ -35,7 +35,7 @@ jobs:
 
   build-and-push:
     needs: test # Запускать только если тесты прошли!
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.version == 'latest')
+    if: github.event_name == 'push' || github.event.inputs.version == 'latest' || github.event.inputs.version == ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -66,7 +66,9 @@ jobs:
             cr.yandex/${{ secrets.YC_REGISTRY_ID }}/my-app:v${{ github.run_number }}
 
   deploy:
-    #needs: build-and-push
+    needs: build-and-push
+    if: |
+      always() && (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped')
     runs-on: ubuntu-latest
     if: always()
     steps:
