@@ -102,6 +102,7 @@ jobs:
             # Обновляем .env и ID реестра
             echo "${{ secrets.ENV_FILE }}" > .env
             echo "YC_REGISTRY_ID=${{ secrets.YC_REGISTRY_ID }}" >> .env
+            echo "GRAFANA_PASSWORD=${{ secrets.GRAFANA_PASSWORD }}" >> .env
 
             # Логинимся в реестр на сервере (паспорт)
             echo '${{ secrets.YC_SA_JSON_KEY }}' | docker login --username json_key --password-stdin cr.yandex
