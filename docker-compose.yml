@@ -55,7 +55,15 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - app
+      app:
+        condition: service_healthy
+      db:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "service", "nginx", "status"] # Простая проверка процесса
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   # Шпион за контейнерами
   cadvisor:
