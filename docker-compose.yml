@@ -74,7 +74,7 @@ services:
   # Сборщик данных (Прометей)
   prometheus:
     <<: *common-configs
-    image: cr.yandex/mirror/prom/prometheus:latest
+    image: prom/prometheus:latest
     restart: always
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
@@ -84,7 +84,7 @@ services:
   # Рисовальщик графиков (Графана)
   grafana:
     <<: *common-configs
-    image: cr.yandex/mirror/grafana/grafana:latest
+    image: grafana/grafana:latest
     restart: always
     ports:
       - "3000:3000"
