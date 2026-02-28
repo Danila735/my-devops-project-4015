@@ -86,6 +86,7 @@ services:
       - /dev/disk/:/dev/disk:ro
       # САМОЕ ВАЖНОЕ: прокидываем сокет Докера!
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
   # Сборщик данных (Прометей)
   prometheus:
