@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install flask psycopg2-binary
-          
+
       - name: Run Syntax Check
         run: |
           # Это наш простенький тест: если в коде опечатка, он упадет
@@ -81,7 +81,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
-          source: "docker-compose.yml,nginx/nginx.conf"
+          source: "docker-compose.yml,nginx/nginx.conf,prometheus.yml"
           target: "/home/ubuntu/my_app" # Файл ляжет в ~/my_app/docker-compose.yml
 
       # 3. Заходим по SSH и даем команду на старт
@@ -112,7 +112,7 @@ jobs:
 
             # 5. Ждем 10 секунд, чтобы база и питон успели "проснуться"
             sleep 10
-            
+ 
             # 6. SMOKE TEST: Бьем по localhost внутри сервера
             echo "Запускаю Smoke Test..."
             if curl -s localhost | grep -q "Визит"; then
