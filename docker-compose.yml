@@ -43,7 +43,7 @@ services:
     depends_on:
       - db
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/').read()"]
       interval: 30s    # Проверять каждые 30 секунд
       timeout: 10s     # Ждать ответа 10 секунд
       retries: 3       # Если 3 раза упал — значит "unhealthy"
