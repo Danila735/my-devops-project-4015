@@ -60,7 +60,7 @@ services:
   # Шпион за контейнерами
   cadvisor:
     <<: *common-configs
-    image: cr.yandex/mirror/gcr.io/cadvisor/cadvisor:v0.47.0
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
     restart: always
     ports:
       - "8080:8080"
