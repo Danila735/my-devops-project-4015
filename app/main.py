@@ -34,7 +34,7 @@ def hello():
     db_version = cur.fetchone()
     cur.close()
     conn.close()
-    return f"Я построил этот CI/CD пайплайн и иду за оффером! Визит №{count}.  База говорит: {db_version}"
+    return f"Я построил этот CI/CD пайплайн!!! Визит №{count}.  База говорит: {db_version}"
 
 if __name__ == '__main__':
     init_db()
